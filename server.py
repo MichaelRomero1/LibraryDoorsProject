@@ -25,3 +25,34 @@ if not os.getenv('FLASK_SECRET_KEY'):
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY')
 
+oauth = OAuth(app)
+oauth.register(
+    name='google',
+    client_id=os.getenv('GOOGLE_CLIENT_ID'),
+    client_secret=os.getenv('GOOGLE_CLIENT_SECRET'),
+    access_token_url='https://accounts.google.com/o/oauth2/token',
+    access_token_params=None,
+    authorize_url='https://accounts.google.com/o/oauth2/auth',
+    authorize_params=None,
+    api_base_url='https://www.googleapis.com/oauth2/v1/',
+    client_kwargs={'scope': 'openid profile email'},
+    jwks_uri = "https://www.googleapis.com/oauth2/v3/certs",
+    clock_skew_in_seconds=10
+    
+)
+
+# Google OAuth configuration
+GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
+
+def login_is_required(function):
+    @wraps(function)
+    def wrapper(*args, **kwargs):
+        if 'email' not in session:  # Check if the user is logged in
+            return abort(401)  # If not, return 401 Unauthorized
+        else:
+            return function(*args, **kwargs)
+    return wrapper
+
+@app.route('/')
+def index():
+    return render_template('index.html')
