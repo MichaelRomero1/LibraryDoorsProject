@@ -57,6 +57,14 @@ def login_is_required(function):
 def index():
     return render_template('index.html')
 
+@app.route('/authorize')
+def authorize():
+
+    google = oauth.create_client('google') # Create/get the google client above
+    token = oauth.google.authorize_access_token()
+    resp = oauth.google.get('userinfo')
+    user_info = resp.json()
+
 @app.route('/login')
 def login():
     google = oauth.create_client('google') # Create/get the google client above
@@ -69,3 +77,7 @@ def logout():
     for key in list(session.keys()): # Clear all keys from the session data
         session.pop(key)
     return redirect('/')
+
+
+if __name__ == '__main__':
+    app.run(debug=True, port=8000, host="0.0.0.0")
