@@ -65,6 +65,12 @@ def authorize():
     resp = oauth.google.get('userinfo')
     user_info = resp.json()
 
+    session['email'] = user_info['email']
+    session['name'] = user_info['name']
+    session['google_id'] = user_info['id']
+
+    return redirect('/doorsui')
+
 @app.route('/login')
 def login():
     google = oauth.create_client('google') # Create/get the google client above
@@ -77,6 +83,12 @@ def logout():
     for key in list(session.keys()): # Clear all keys from the session data
         session.pop(key)
     return redirect('/')
+
+@app.route('/doorsui')
+@login_is_required # Decorator to check if the user is logged in
+def doorsui():
+    user_name = session.get('name')
+    return render_template("doorsui.html", user_name = user_name)
 
 
 if __name__ == '__main__':
