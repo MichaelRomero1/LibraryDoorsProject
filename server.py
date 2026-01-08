@@ -56,3 +56,16 @@ def login_is_required(function):
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/login')
+def login():
+    google = oauth.create_client('google') # Create/get the google client above
+    redirect_uri = url_for('authorize', _external=True)
+    return oauth.google.authorize_redirect(redirect_uri)
+
+
+@app.route('/logout') 
+def logout():
+    for key in list(session.keys()): # Clear all keys from the session data
+        session.pop(key)
+    return redirect('/')
